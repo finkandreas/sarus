@@ -34,7 +34,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 find_program(GIT_PATH git)
 
-execute_process(COMMAND ${GIT_PATH} -C ${CMAKE_SOURCE_DIR} describe --tags --dirty
+execute_process(COMMAND ${GIT_PATH} -C ${CMAKE_SOURCE_DIR} describe --tags --dirty --always
                 OUTPUT_VARIABLE LATEST_GIT_TAG
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(NOT LATEST_GIT_TAG)
