@@ -234,7 +234,7 @@ TEST(SkopeoDriverTestGroup, acquireAuthFile) {
     {
         common::createFoldersIfNecessary(xdgRuntimeDir);
         common::setEnvironmentVariable("XDG_RUNTIME_DIR", xdgRuntimeDir.string());
-        auto expectedAuthFilePath = xdgRuntimeDir / "sarus/auth.json";
+        auto expectedAuthFilePath = xdgRuntimeDir / "sarus/auth.json-randomsuffix";
 
         // Instantiate the SkopeoDriver object in another scope to check removal
         // of the authFile by the destructor
@@ -242,7 +242,9 @@ TEST(SkopeoDriverTestGroup, acquireAuthFile) {
             CHECK_FALSE(boost::filesystem::exists(expectedAuthFilePath));
 
             auto driver = image_manager::SkopeoDriver{config};
-            driver.acquireAuthFile(config->authentication, config->imageReference);
+            auto randomExpectedAuthFilePath = driver.acquireAuthFile(config->authentication, config->imageReference);
+            CHECK_TRUE(expectedAuthFilePath != randomExpectedAuthFilePath);
+            expectedAuthFilePath = randomExpectedAuthFilePath;
 
             CHECK(boost::filesystem::exists(expectedAuthFilePath));
             CHECK(boost::filesystem::status(expectedAuthFilePath).permissions() == expectedPermissions);
@@ -253,12 +255,14 @@ TEST(SkopeoDriverTestGroup, acquireAuthFile) {
     // create file in Sarus local repo if XDG_RUNTIME_DIR defined but not existing
     {
         boost::filesystem::remove_all(xdgRuntimeDir);
-        auto expectedAuthFilePath = config->directories.repository / "auth.json";
+        auto expectedAuthFilePath = config->directories.repository / "auth.json-somesuffix";
         {
             CHECK_FALSE(boost::filesystem::exists(expectedAuthFilePath));
 
             auto driver = image_manager::SkopeoDriver{config};
-            driver.acquireAuthFile(config->authentication, config->imageReference);
+            auto randomExpectedAuthFilePath = driver.acquireAuthFile(config->authentication, config->imageReference);
+            CHECK_TRUE(expectedAuthFilePath != randomExpectedAuthFilePath);
+            expectedAuthFilePath = randomExpectedAuthFilePath;
 
             CHECK(boost::filesystem::exists(expectedAuthFilePath));
             CHECK(boost::filesystem::status(expectedAuthFilePath).permissions() == expectedPermissions);
@@ -270,12 +274,14 @@ TEST(SkopeoDriverTestGroup, acquireAuthFile) {
     {
         common::createFoldersIfNecessary(xdgRuntimeDir);
         unsetenv("XDG_RUNTIME_DIR");
-        auto expectedAuthFilePath = config->directories.repository / "auth.json";
+        auto expectedAuthFilePath = config->directories.repository / "auth.json-somesuffix";
         {
             CHECK_FALSE(boost::filesystem::exists(expectedAuthFilePath));
 
             auto driver = image_manager::SkopeoDriver{config};
-            driver.acquireAuthFile(config->authentication, config->imageReference);
+            auto randomExpectedAuthFilePath = driver.acquireAuthFile(config->authentication, config->imageReference);
+            CHECK_TRUE(expectedAuthFilePath != randomExpectedAuthFilePath);
+            expectedAuthFilePath = randomExpectedAuthFilePath;
 
             CHECK(boost::filesystem::exists(expectedAuthFilePath));
             CHECK(boost::filesystem::status(expectedAuthFilePath).permissions() == expectedPermissions);
